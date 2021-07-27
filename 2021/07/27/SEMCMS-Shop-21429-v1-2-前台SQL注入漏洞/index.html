@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      SEMCMS_Shop_21429_v1.2 前台SQL注入漏洞 
+      
+      
+      |
+    
+     N0puple&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/001.ico">
+    <link rel="icon" href="/images/001.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/1.jpg" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">N0puple</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">主页</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">归档</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">分类</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">朋友</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">关于我</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">SEMCMS_Shop_21429_v1.2 前台SQL注入漏洞</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2021-07-27 22:45:07
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="漏洞复现">
+                    <b>#</b> 漏洞复现
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="Tags"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/php/" title="php">
+                    <b>#</b> php
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/sql%E6%B3%A8%E5%85%A5/" title="sql注入">
+                    <b>#</b> sql注入
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/cnvd/" title="cnvd">
+                    <b>#</b> cnvd
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/cms/" title="cms">
+                    <b>#</b> cms
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h2 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h2><p><code>SEMCMS Shop</code> 21429_v1.2 前台存在SQL注入漏洞。攻击者可利用漏洞获取数据库敏感信息。</p>
+<h3 id="CNVD编号"><a href="#CNVD编号" class="headerlink" title="CNVD编号"></a>CNVD编号</h3><p><code>cnvd</code> 上有一堆他的 <code>sql</code> 注入漏洞，其中必然有一个是这个漏洞，我也不好确定是哪个</p>
+<h3 id="影响范围"><a href="#影响范围" class="headerlink" title="影响范围"></a>影响范围</h3><p>目前最新版本为 21429 v1.2 ，既本文测试版本</p>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p><code>payload</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CLIENT-IP: 1&#39; and (select sleep(2)) or &#39;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210727225112.png"></p>
+<p>注意到右下角的响应时间</p>
+<h2 id="漏洞细节"><a href="#漏洞细节" class="headerlink" title="漏洞细节"></a>漏洞细节</h2><h3 id="一条弯路"><a href="#一条弯路" class="headerlink" title="一条弯路"></a>一条弯路</h3><p>看到 <code>cnvd</code> 上有这个 <code>cms</code> 的注入后，立马掏出审计工具扫了一下，扫到了一批注入点，于是验证了一下</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> $<span class="keyword">table</span> <span class="keyword">where</span> suxin_id<span class="operator">=</span>$suxin_id <span class="keyword">and</span> itemnb<span class="operator">=</span><span class="string">&#x27;$itemnb&#x27;</span> <span class="keyword">order</span> <span class="keyword">by</span> pt_paixu,ID <span class="keyword">desc</span></span><br></pre></td></tr></table></figure>
+
+<p>第一个是这个，位于</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;后台&#125;&#x2F;Ant_Ajax.php</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include_once</span> <span class="string">&#x27;Ant_Inc.php&#x27;</span>;</span><br><span class="line"><span class="keyword">if</span>(!<span class="keyword">empty</span>(<span class="variable">$sort</span>) &amp;&amp; <span class="variable">$sort</span>!=<span class="string">&quot;Lgot&quot;</span>)&#123;</span><br><span class="line">	<span class="variable">$table</span>=CheckDatabase(<span class="variable">$sort</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&quot;suxin_id&quot;</span>]))&#123;<span class="variable">$suxin_id</span>=<span class="variable">$_GET</span>[<span class="string">&quot;suxin_id&quot;</span>];&#125;<span class="keyword">else</span>&#123;<span class="variable">$suxin_id</span>=<span class="string">&quot;&quot;</span>;&#125;<span class="comment">//属性ID</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&quot;itemnb&quot;</span>]))&#123;<span class="variable">$itemnb</span>=<span class="variable">$_GET</span>[<span class="string">&quot;itemnb&quot;</span>];&#125;<span class="keyword">else</span>&#123;<span class="variable">$itemnb</span>=<span class="string">&quot;&quot;</span>;&#125;<span class="comment">//编号</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$sort</span>==<span class="string">&quot;property&quot;</span>)&#123; <span class="comment">//属性 list</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (!<span class="keyword">empty</span>(<span class="variable">$suxin_id</span>) &amp;&amp; !<span class="keyword">empty</span>(<span class="variable">$itemnb</span>))	&#123;</span><br><span class="line">  	 <span class="variable">$i</span>=<span class="number">1</span>;<span class="variable">$str</span>=<span class="string">&#x27;&#x27;</span>;</span><br><span class="line">	 <span class="variable">$query</span>=<span class="variable">$db_conn</span>-&gt;query(<span class="string">&quot;select * from <span class="subst">$table</span> where suxin_id=<span class="subst">$suxin_id</span> and itemnb=&#x27;<span class="subst">$itemnb</span>&#x27; order by pt_paixu,ID desc&quot;</span>);</span><br><span class="line">   	 </span><br></pre></td></tr></table></figure>
+
+<p>哦豁，直接拼接的，于是构造请求包发送请求，没想到泼我冷水了</p>
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210727225857.png"></p>
+<p>直接搜报错内容，位于 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Core&#x2F;Program&#x2F;Ant_Check.php</span><br></pre></td></tr></table></figure>
+
+<p>看到代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">VerifyStr</span>(<span class="params"><span class="variable">$str</span></span>) </span>&#123; </span><br><span class="line">   <span class="keyword">if</span>(CheckSql(<span class="variable">$str</span>)) &#123;</span><br><span class="line">       <span class="keyword">exit</span>(<span class="string">&#x27;Wrong!Wrong!Wrong!&#x27;</span>.<span class="variable">$str</span>);</span><br><span class="line">    &#125; </span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$str</span>; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>跟进 <code>CheckSql($str)</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">CheckSql</span>(<span class="params"><span class="variable">$str</span></span>) </span>&#123;</span><br><span class="line">     <span class="keyword">return</span> preg_match(<span class="string">&#x27;/select|=|%|&lt;|between|update|\&#x27;|\*|union|into|load_file|outfile/i&#x27;</span>,<span class="variable">$str</span>); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看来是过滤了这些东西，过滤 <code>select</code> 就已经很难办了，何况还有那么多其他的，只能看看有没有其他可以突破的，我们来到该文件的最上方</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_GET</span>))&#123;<span class="variable">$GetArray</span>=<span class="variable">$_GET</span>;&#125;<span class="keyword">else</span>&#123;<span class="variable">$GetArray</span>=<span class="string">&#x27;&#x27;</span>;&#125; <span class="comment">//get</span></span><br><span class="line"><span class="keyword">foreach</span> (<span class="variable">$GetArray</span> <span class="keyword">as</span> <span class="variable">$value</span>)&#123; <span class="comment">//get </span></span><br><span class="line">    VerifyStr(<span class="variable">$value</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也就是说这个只过滤了 <code>$_GET</code> ，其他的，像 <code>$_POST</code> 和 <code>$_COOKIE</code> 在这里是没有过滤的，所以在 <code>cnvd</code> 上才会出现那么多这个 <code>cms</code> 的 <code>sql</code> 注入</p>
+<h3 id="正确道路"><a href="#正确道路" class="headerlink" title="正确道路"></a>正确道路</h3><p>接下来讲一条正确的路子，位于</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Core&#x2F;Program&#x2F;Ant_Rponse.php</span><br></pre></td></tr></table></figure>
+
+<p>这里有一个用户注册的功能点，比较有意思的是，我在前台没有找到可以注册的地方，但是在这里却是可以直接用的，构造请求包就可以</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="variable">$actions</span> == <span class="string">&quot;UserReg&quot;</span>)&#123;</span><br><span class="line">	<span class="variable">$table</span>=<span class="string">&quot;sc_member&quot;</span>;</span><br><span class="line">	<span class="keyword">if</span>(!<span class="keyword">empty</span>(<span class="variable">$post</span>))&#123;</span><br><span class="line">		<span class="keyword">if</span>(CheckEmail(<span class="variable">$post</span>[<span class="string">&#x27;me_email&#x27;</span>])==<span class="literal">true</span>)&#123;</span><br><span class="line">			<span class="keyword">if</span>(<span class="variable">$Ant</span>-&gt;CheckData(<span class="variable">$table</span>,<span class="string">&quot;me_email&quot;</span>,<span class="variable">$post</span>[<span class="string">&#x27;me_email&#x27;</span>],<span class="variable">$db_conn</span>)==<span class="number">1</span>)&#123;<span class="comment">//验证是否有相同邮箱存在</span></span><br><span class="line">				<span class="keyword">echo</span> <span class="variable">$Lable</span>[<span class="string">&#x27;sameemail&#x27;</span>];</span><br><span class="line">				<span class="keyword">exit</span>;</span><br><span class="line">			&#125;<span class="keyword">else</span>&#123;	</span><br><span class="line">				<span class="keyword">foreach</span> (<span class="variable">$post</span> <span class="keyword">as</span> <span class="variable">$key</span> =&gt; <span class="variable">$value</span>) &#123;</span><br><span class="line">					<span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="variable">$value</span>))&#123; <span class="comment">//判断空值</span></span><br><span class="line">					  <span class="keyword">echo</span> <span class="string">&#x27;&lt;i class=&quot;fa fa-exclamation-triangle&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;br&gt;&#x27;</span>.<span class="variable">$Lable</span>[<span class="string">&#x27;Required&#x27;</span>]; </span><br><span class="line">					  <span class="keyword">exit</span>;</span><br><span class="line">					 &#125;</span><br><span class="line">				  <span class="variable">$field</span>.=<span class="variable">$key</span>.<span class="string">&quot;,&quot;</span>;</span><br><span class="line">				  <span class="keyword">if</span> (<span class="variable">$key</span>==<span class="string">&quot;me_paswd&quot;</span>)&#123;</span><br><span class="line">				  	<span class="variable">$val</span>.=<span class="string">&quot;&#x27;&quot;</span>.md5(md5(<span class="variable">$value</span>)).<span class="string">&quot;&#x27;,&quot;</span>; <span class="comment">//双 md5</span></span><br><span class="line">				  &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">				    <span class="variable">$val</span>.=<span class="string">&quot;&#x27;&quot;</span>.CheckStr(<span class="variable">$value</span>).<span class="string">&quot;&#x27;,&quot;</span>;</span><br><span class="line">				  &#125;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="variable">$me_logintime</span> = date(<span class="string">&quot;Y-m-d H:i:s&quot;</span>);</span><br><span class="line">				<span class="variable">$me_loginip</span> = GetIp();</span><br><span class="line">				<span class="variable">$field</span> = <span class="variable">$field</span>.<span class="string">&quot;me_logintime,me_ip&quot;</span>;</span><br><span class="line">				<span class="variable">$val</span> = <span class="string">&quot;(&quot;</span>.<span class="variable">$val</span>.<span class="string">&quot;&#x27;&quot;</span>.<span class="variable">$me_logintime</span>.<span class="string">&quot;&#x27;,&quot;</span>.<span class="string">&quot;&#x27;&quot;</span>.<span class="variable">$me_loginip</span>.<span class="string">&quot;&#x27;)&quot;</span>;	</span><br><span class="line">	           <span class="keyword">if</span> ((<span class="variable">$Ant</span>-&gt;AntAdd(<span class="variable">$table</span>,<span class="variable">$field</span>,<span class="variable">$val</span>,<span class="variable">$db_conn</span>))===<span class="literal">true</span>)&#123;</span><br><span class="line">	             	start_session(Ant_Cook(<span class="string">&quot;Expires&quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<p>这一段有两个可能注入的点，第一个是邮箱检验，第二个是插入注册信息的 <code>ip</code></p>
+<h4 id="邮箱检验"><a href="#邮箱检验" class="headerlink" title="邮箱检验"></a>邮箱检验</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(CheckEmail(<span class="variable">$post</span>[<span class="string">&#x27;me_email&#x27;</span>])==<span class="literal">true</span>)&#123;</span><br><span class="line">	<span class="variable">$Ant</span>-&gt;CheckData(<span class="variable">$table</span>,<span class="string">&quot;me_email&quot;</span>,<span class="variable">$post</span>[<span class="string">&#x27;me_email&#x27;</span>],<span class="variable">$db_conn</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这里有一个值是用的 <code>post</code> 的值，前面说到， <code>post</code> 是没有被过滤的，因此我们跟进 <code>CheckEmail</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">CheckEmail</span>(<span class="params"><span class="variable">$email</span></span>)</span>&#123;</span><br><span class="line">   <span class="variable">$checkmail</span>=<span class="string">&quot;/^[_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]&#123;2,&#125;)$/&quot;</span>;     </span><br><span class="line">   <span class="keyword">if</span>(preg_match(<span class="variable">$checkmail</span>,<span class="variable">$email</span>))&#123; </span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">   &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>没想到这里有个拦路虎，直接使用正则匹配了邮箱格式，没法绕过，下一处</p>
+<h4 id="注册-IP"><a href="#注册-IP" class="headerlink" title="注册 IP"></a>注册 IP</h4><p>我们直接来看到 <code>GetIp</code> ，这是一个经常会出现问题的点，因为这个会从 <code>$_SERVER</code> 中取值，而开发人员往往会忽视这点，或者干脆是复制的网上的代码，从而导致问题，这里就出现了</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">GetIp</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line"> </span><br><span class="line">   <span class="variable">$ip</span>=<span class="literal">FALSE</span>;</span><br><span class="line">   <span class="keyword">if</span>(!<span class="keyword">empty</span>(<span class="variable">$_SERVER</span>[<span class="string">&quot;HTTP_CLIENT_IP&quot;</span>]))&#123;</span><br><span class="line">       <span class="variable">$ip</span> = <span class="variable">$_SERVER</span>[<span class="string">&quot;HTTP_CLIENT_IP&quot;</span>];</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>ip</code> 的值从 <code>$_SERVER[&quot;HTTP_CLIENT_IP&quot;]</code> 中取值，因此是可控的</p>
+<p>接着往下看</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$Ant</span>-&gt;AntAdd(<span class="variable">$table</span>,<span class="variable">$field</span>,<span class="variable">$val</span>,<span class="variable">$db_conn</span>)</span><br></pre></td></tr></table></figure>
+
+<p>此处的 <code>$table</code> 为 <code>sc_member</code> ，<code>$field</code> 与 <code>$val</code> 的取值对应，有两处赋值</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">foreach</span> (<span class="variable">$post</span> <span class="keyword">as</span> <span class="variable">$key</span> =&gt; <span class="variable">$value</span>) &#123;</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="variable">$value</span>))&#123; <span class="comment">//判断空值</span></span><br><span class="line">  <span class="keyword">echo</span> <span class="string">&#x27;&lt;i class=&quot;fa fa-exclamation-triangle&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;br&gt;&#x27;</span>.<span class="variable">$Lable</span>[<span class="string">&#x27;Required&#x27;</span>]; </span><br><span class="line">  <span class="keyword">exit</span>;</span><br><span class="line"> &#125;</span><br><span class="line">  <span class="variable">$field</span>.=<span class="variable">$key</span>.<span class="string">&quot;,&quot;</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable">$key</span>==<span class="string">&quot;me_paswd&quot;</span>)&#123;</span><br><span class="line">    <span class="variable">$val</span>.=<span class="string">&quot;&#x27;&quot;</span>.md5(md5(<span class="variable">$value</span>)).<span class="string">&quot;&#x27;,&quot;</span>; <span class="comment">//双 md5</span></span><br><span class="line">  &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="variable">$val</span>.=<span class="string">&quot;&#x27;&quot;</span>.CheckStr(<span class="variable">$value</span>).<span class="string">&quot;&#x27;,&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="variable">$val</span> = <span class="string">&quot;(&quot;</span>.<span class="variable">$val</span>.<span class="string">&quot;&#x27;&quot;</span>.<span class="variable">$me_logintime</span>.<span class="string">&quot;&#x27;,&quot;</span>.<span class="string">&quot;&#x27;&quot;</span>.<span class="variable">$me_loginip</span>.<span class="string">&quot;&#x27;)&quot;</span>;	</span><br></pre></td></tr></table></figure>
+
+<p>从 <code>post</code> 中取值，然后将所有的 <code>key</code> 用 <code>,</code> 连接，<code>value</code> 也一样，而 <code>value</code> 最后会使用 <code>CheckStr</code> 检查，从这里注入也是没办法，最后会执行到 <code>AntAdd</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">AntAdd</span>(<span class="params"><span class="variable">$table</span>,<span class="variable">$field</span>,<span class="variable">$val</span>,<span class="variable">$db</span></span>)</span>&#123;<span class="comment">// 增</span></span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$db</span>-&gt;query(<span class="string">&quot;INSERT INTO  <span class="subst">$table</span> (<span class="subst">$field</span>) VALUES <span class="subst">$val</span>&quot;</span>))&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里没有任何过滤，上面的 <code>ip</code> 可控，也就是说 <code>val</code> 也可控，因此可以通过此处来注入，因为报错不回显，所以只能是 <code>insert</code> 延时注入</p>
+<p>这里还有一处比较有意思的一点是，<code>me_paswd</code> 是必须的，从而导致插入语句执行不成功，但是可以成功 <code>sleep</code> ，也就是说注入的过程中，数据是插不进去的， 这样避免了给正常业务带来影响，也可以是避免了被发现。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>实际上这个 <code>cms</code> 还有好多处注入，但这里就没有写了，<code>cnvd</code> 上能搜到一大把，不过利用思路应该都差不多，找 <code>POST</code> 或者 <code>COOKIE</code> 等输入点</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/07/26/Catfish-CMS-v5-9-12%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%A4%B9%E5%88%A0%E9%99%A4%E6%BC%8F%E6%B4%9E/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="Update time"></i>
+              2021-07-27 22:45:07
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="Categories"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="漏洞复现">
+                        <b>#</b> 漏洞复现
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="Tags"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/php/" title="php">
+                        <b>#</b> php
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/sql%E6%B3%A8%E5%85%A5/" title="sql注入">
+                        <b>#</b> sql注入
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/cnvd/" title="cnvd">
+                        <b>#</b> cnvd
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/cms/" title="cms">
+                        <b>#</b> cms
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%8F%8F%E8%BF%B0"><span class="toc-text">漏洞描述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CNVD%E7%BC%96%E5%8F%B7"><span class="toc-text">CNVD编号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E8%8C%83%E5%9B%B4"><span class="toc-text">影响范围</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%BB%86%E8%8A%82"><span class="toc-text">漏洞细节</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%9D%A1%E5%BC%AF%E8%B7%AF"><span class="toc-text">一条弯路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E7%A1%AE%E9%81%93%E8%B7%AF"><span class="toc-text">正确道路</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%82%AE%E7%AE%B1%E6%A3%80%E9%AA%8C"><span class="toc-text">邮箱检验</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C-IP"><span class="toc-text">注册 IP</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+  <div id="vcomments"></div>
+
+  <script>
+    new Valine({
+      el: '#vcomments',
+      appId: 'NDNgppjVEEzr7sUejJFVueds-gzGzoHsz',
+      appKey: 'E6rBuy0l5xXiIjq6GA24XI5J',
+      placeholder: 'Welcome!',
+      avatar: 'retro',
+      lang: 'en'
+    })
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        <div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/N0puple/">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/N0puple/">Copyright © N0puple 2020</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+  <div class="search-icon" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+    </div>
+  </body>
+</html>
